@@ -1,0 +1,108 @@
+-- Los 17 / Invisible Bypass Edition
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local player = game.Players.LocalPlayer
+
+-- Generar un nombre aleatorio para que el anticheat no lo encuentre por nombre fijo
+local randomName = "L17_" .. tostring(math.random(1000, 9999))
+
+-- Limpiar versiones anteriores
+for _, v in pairs(CoreGui:GetChildren()) do
+    if v.Name:find("L17_") then v:Destroy() end
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local CoordLabel = Instance.new("TextLabel")
+local CopyButton = Instance.new("TextButton")
+
+-- Bypass de nombre y ubicación
+ScreenGui.Name = randomName
+ScreenGui.Parent = CoreGui -- Se oculta en CoreGui
+ScreenGui.ResetOnSpawn = false
+
+-- Panel Principal (Negro Claro)
+MainFrame.Name = "BG_" .. randomName
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+MainFrame.Position = UDim2.new(0.5, -100, 0.4, -65)
+MainFrame.Size = UDim2.new(0, 200, 0, 130)
+MainFrame.Active = true
+MainFrame.Draggable = true -- Para moverlo con el dedo o mouse
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+
+-- Barra Los 17 (Verde como pediste)
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 38)
+Title.BackgroundColor3 = Color3.fromRGB(0, 160, 50) 
+Title.Text = "Los 17"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 12)
+
+-- Texto de Coordenadas
+CoordLabel.Parent = MainFrame
+CoordLabel.Position = UDim2.new(0, 0, 0.35, 0)
+CoordLabel.Size = UDim2.new(1, 0, 0, 40)
+CoordLabel.BackgroundTransparency = 1
+CoordLabel.Text = "0, 0, 0"
+CoordLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+CoordLabel.Font = Enum.Font.Code
+CoordLabel.TextSize = 14
+
+-- Botón Copiar
+CopyButton.Parent = MainFrame
+CopyButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+CopyButton.Size = UDim2.new(0.8, 0, 0, 28)
+CopyButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+CopyButton.Text = "COPIAR"
+CopyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CopyButton.Font = Enum.Font.GothamMedium
+CopyButton.TextSize = 13
+
+Instance.new("UICorner", CopyButton).CornerRadius = UDim.new(0, 6)
+
+--- Lógica de Protección ---
+
+-- Actualización silenciosa de posición
+RunService.Heartbeat:Connect(function()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local pos = player.Character.HumanoidRootPart.Position
+        CoordLabel.Text = string.format("X: %.2f\nY: %.2f\nZ: %.2f", pos.X, pos.Y, pos.Z)
+    end
+end)
+
+-- Copiar al portapapeles usando el comando del ejecutor
+CopyButton.MouseButton1Click:Connect(function()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local coords = tostring(player.Character.HumanoidRootPart.Position)
+        if setclipboard then
+            setclipboard(coords)
+            CopyButton.Text = "OK!"
+            task.wait(0.5)
+            CopyButton.Text = "COPIAR"
+        end
+    end
+end)
+
+-- Toggle con tecla "Z"
+UIS.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.Z then
+        MainFrame.Visible = not MainFrame.Visible
+    end
+end)
+
+-- Bypass preventivo de detección de consola (evita logs del menú)
+local oldLog = print
+print = function(...)
+    local args = {...}
+    if tostring(args[1]):find("Los 17") or tostring(args[1]):find("L17_") then
+        return
+    end
+    return oldLog(...)
+end
